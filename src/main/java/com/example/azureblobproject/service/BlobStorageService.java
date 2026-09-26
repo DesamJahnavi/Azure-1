@@ -2,6 +2,9 @@ package com.example.azureblobproject.service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -123,5 +126,106 @@ public class BlobStorageService {
         blobClient.delete();
 
         return "File deleted successfully: " + fileName;
+    }
+
+    // Bulk upload files from a local folder with Blob Index Tags
+    public String bulkUploadFromFolder(String folderPath) throws IOException {
+
+        Path folder = Paths.get(folderPath);
+
+        if (!Files.exists(folder) || !Files.isDirectory(folder)) {
+            return "Folder not found: " + folderPath;
+        }
+
+        String[] departments = {
+                "CSE",
+                "ECE",
+                "EEE",
+                "MECH"
+        };
+
+        String[] subjects = {
+                "Java",
+                "Python",
+                "Cloud",
+                "DBMS",
+                "AI"
+        };
+
+        String[] types = {
+                "Notes",
+                "Assignment",
+                "LabRecord",
+                "QuestionPaper"
+        };
+
+        int count = 0;
+
+        try (var files = Files.list(folder)) {
+
+            for (Path path :
+                    files.filter(Files::isRegularFile).toList()) {
+
+                String fileName =
+                        path.getFileName().toString();
+
+                BlobClient blobClient =
+                        containerClient.getBlobClient(fileName);
+
+                byte[] data =
+                        Files.readAllBytes(path);
+
+                blobClient.upload(
+                        new java.io.ByteArrayInputStream(data),
+                        data.length,
+                        true);
+
+                String numberText =
+                        fileName
+                                .replace("document_", "")
+                                .replace(".txt", "");
+
+                int number =
+                        Integer.parseInt(numberText);
+
+                String department =
+                        departments[
+                                (number - 1)
+                                % departments.length
+                        ];
+
+                String subject =
+                        subjects[
+                                (number - 1)
+                                % subjects.length
+                        ];
+
+                String type =
+                        types[
+                                (number - 1)
+                                % types.length
+                        ];
+
+                Map<String, String> tags =
+                        new HashMap<>();
+
+                tags.put("Department", department);
+                tags.put("Subject", subject);
+                tags.put("Year", "2026");
+                tags.put("Type", type);
+
+                blobClient.setTags(tags);
+
+                blobClient.setHttpHeaders(
+                        new BlobHttpHeaders()
+                                .setContentType("text/plain")
+                );
+
+                count++;
+            }
+        }
+
+        return count
+                + " files uploaded successfully with Blob Index Tags.";
     }
 }

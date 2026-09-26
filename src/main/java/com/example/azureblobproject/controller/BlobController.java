@@ -28,6 +28,7 @@ public class BlobController {
         this.blobStorageService = blobStorageService;
     }
 
+    // Upload a single file
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(
             @RequestParam("file") MultipartFile file,
@@ -37,17 +38,25 @@ public class BlobController {
             @RequestParam("type") String type) {
 
         try {
+
             String result = blobStorageService.uploadFile(
-                    file, department, subject, year, type);
+                    file,
+                    department,
+                    subject,
+                    year,
+                    type);
 
             return ResponseEntity.ok(result);
 
         } catch (IOException e) {
-            return ResponseEntity.internalServerError()
+
+            return ResponseEntity
+                    .internalServerError()
                     .body("Upload failed: " + e.getMessage());
         }
     }
 
+    // List all files
     @GetMapping
     public ResponseEntity<List<String>> listFiles() {
 
@@ -55,15 +64,19 @@ public class BlobController {
                 blobStorageService.listFiles());
     }
 
+    // Search files using Blob Index Tags
     @GetMapping("/search")
     public ResponseEntity<List<String>> searchByTag(
             @RequestParam String tagName,
             @RequestParam String tagValue) {
 
         return ResponseEntity.ok(
-                blobStorageService.searchByTag(tagName, tagValue));
+                blobStorageService.searchByTag(
+                        tagName,
+                        tagValue));
     }
 
+    // Download file
     @GetMapping("/download/{fileName:.+}")
     public ResponseEntity<byte[]> downloadFile(
             @PathVariable String fileName) {
@@ -75,21 +88,48 @@ public class BlobController {
             return ResponseEntity.notFound().build();
         }
 
-        byte[] data = blobClient.downloadContent().toBytes();
+        byte[] data =
+                blobClient.downloadContent().toBytes();
 
         return ResponseEntity.ok()
                 .header(
                         HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + fileName + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(
+                        MediaType.APPLICATION_OCTET_STREAM)
                 .body(data);
     }
 
+    // Delete file
     @DeleteMapping("/{fileName:.+}")
     public ResponseEntity<String> deleteFile(
             @PathVariable String fileName) {
 
         return ResponseEntity.ok(
                 blobStorageService.deleteFile(fileName));
+    }
+
+    // TEMPORARY: Bulk upload 200 files
+    @PostMapping("/bulk-upload")
+    public ResponseEntity<String> bulkUpload() {
+
+        String folderPath =
+                "C:\\Users\\Jahnavi Reddy\\azure-demo-200-files";
+
+        try {
+
+            String result =
+                    blobStorageService
+                            .bulkUploadFromFolder(folderPath);
+
+            return ResponseEntity.ok(result);
+
+        } catch (IOException e) {
+
+            return ResponseEntity
+                    .internalServerError()
+                    .body("Bulk upload failed: "
+                            + e.getMessage());
+        }
     }
 }
