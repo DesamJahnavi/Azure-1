@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Document Organizer</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Azure Document Organizer</h1>
+
+        <p class="subtitle">
+            Store, organize and search documents using Azure Blob Index Tags
+        </p>
+
+        <!-- Upload Section -->
+        <section class="card">
+
+            <h2>Upload Document</h2>
+
+            <form id="uploadForm">
+
+                <label>Select File</label>
+                <input type="file" id="file" required>
+
+                <label>Department</label>
+                <input type="text" id="department"
+                       placeholder="Example: CSE" required>
+
+                <label>Subject</label>
+                <input type="text" id="subject"
+                       placeholder="Example: Java" required>
+
+                <label>Year</label>
+                <input type="text" id="year"
+                       placeholder="Example: 2026" required>
+
+                <label>Type</label>
+                <input type="text" id="type"
+                       placeholder="Example: Notes" required>
+
+                <button type="submit">Upload Document</button>
+
+            </form>
+
+            <p id="uploadMessage"></p>
+
+        </section>
+
+
+        <!-- Search Section -->
+        <section class="card">
+
+            <h2>Search Documents</h2>
+
+            <label>Search By</label>
+
+            <select id="searchTag">
+                <option value="Department">Department</option>
+                <option value="Subject">Subject</option>
+                <option value="Year">Year</option>
+                <option value="Type">Type</option>
+            </select>
+
+            <label>Tag Value</label>
+
+            <input type="text"
+                   id="searchValue"
+                   placeholder="Example: Java">
+
+            <button onclick="searchFiles()">
+                Search
+            </button>
+
+            <div id="searchResults"></div>
+
+        </section>
+
+
+        <!-- All Files Section -->
+        <section class="card">
+
+            <h2>All Documents</h2>
+
+            <button onclick="loadFiles()">
+                Refresh Files
+            </button>
+
+            <div id="fileList"></div>
+
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
